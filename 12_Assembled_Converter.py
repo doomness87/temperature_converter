@@ -1,5 +1,5 @@
 from tkinter import *
-from functools import partial    # To prevent unwanted windows
+from functools import partial  # To prevent unwanted windows
 import re
 
 import random
@@ -29,8 +29,8 @@ class Converter:
         # User instructions (row 1)
         self.temp_instructions_label = Label(self.converter_frame,
                                              text="Type in the amount to be "
-                                             "converted and then push "
-                                             "one of the buttons below...",
+                                                  "converted and then push "
+                                                  "one of the buttons below...",
                                              font="Arial 10 italic", wrap=290,
                                              justify=LEFT, bg=background_color,
                                              padx=10, pady=10)
@@ -43,7 +43,7 @@ class Converter:
 
         # Conversion buttons frame  (row 3), orchid3 | khaki1
         self.conversion_buttons_frame = Frame(self.converter_frame)
-        self.conversion_buttons_frame.grid(row=3)
+        self.conversion_buttons_frame.grid(row=3, pady=10)
 
         self.to_c_button = Button(self.conversion_buttons_frame,
                                   text="To Centigrade", font="Arial 10 bold",
@@ -76,7 +76,7 @@ class Converter:
             self.history_button.config(state=DISABLED)
 
         self.help_button = Button(self.hist_help_frame, font="Arial 12 bold",
-                                  text="Help", width=5)
+                                  text="Help", width=5, command=self.help)
         self.help_button.grid(row=0, column=1)
 
     def temp_convert(self, low):
@@ -93,14 +93,14 @@ class Converter:
 
             # Check and Convert to Fahrenheit
             if low == -273 and to_convert >= low:
-                fahrenheit = (to_convert * 9/5 + 32)
+                fahrenheit = (to_convert * 9 / 5 + 32)
                 to_convert = self.round_it(to_convert)
                 fahrenheit = self.round_it(fahrenheit)
                 answer = "{} degrees C is {} degrees F".format(to_convert, fahrenheit)
 
             # Check and convert to Centigrade
             elif low == -459 and to_convert >= low:
-                celsius = (to_convert - 32) * 5/9
+                celsius = (to_convert - 32) * 5 / 9
                 to_convert = self.round_it(to_convert)
                 celsius = self.round_it(celsius)
                 answer = "{} degrees C is {} degrees F".format(to_convert, celsius)
@@ -117,10 +117,12 @@ class Converter:
             else:
                 self.converted_label.configure(text=answer, fg="red")
                 self.to_convert_entry.configure(bg=error)
-        # Add Answer to list for History
+
+            # Add Answer to list for History
             if has_errors != "yes":
                 self.all_calc_list.append(answer)
                 self.history_button.config(state=NORMAL)
+
         except ValueError:
             self.converted_label.configure(text="Enter a number!!", fg="red")
             self.to_convert_entry.configure(bg=error)
@@ -152,7 +154,7 @@ class Converter:
 class History:
     def __init__(self, partner, calc_history):
 
-        background = "orange"
+        background = "#a9ef99"  # Pale green
 
         # disable history button
         partner.history_button.config(state=DISABLED)
@@ -161,16 +163,18 @@ class History:
         self.history_box = Toplevel()
 
         # If users press cross at top, closes history and 'releases' history button
-        self.history_box.protocol('WM_DELETE_WINDOW', partial(self.close_history, partner))
+        self.history_box.protocol('WM_DELETE_WINDOW',
+                                  partial(self.close_history, partner))
 
         # Set up GUI Frame
-        self.history_frame = Frame(self.history_box, bg=background)
+        self.history_frame = Frame(self.history_box, width=300, bg=background)
         self.history_frame.grid()
 
         # Set up history heading  (row 0)
-        self.how_heading = Label(self.history_frame, text="history / Instructions",
-                                 font="arial 10 bold", bg=background)
+        self.how_heading = Label(self.history_frame, text="Calculation History",
+                                 font="arial 19 bold", bg=background)
         self.how_heading.grid(row=0)
+
         # History text (label, row 1)
         self.history_text = Label(self.history_frame,
                                   text="Here are your most recent "
@@ -188,10 +192,10 @@ class History:
         # Generate string from list of calculations...
         history_string = ""
 
-        if len(calc_history) >= 7:
+        if len(calc_history) > 7:
             for item in range(0, 7):
                 history_string += calc_history[len(calc_history)
-                                               - item - 1]+"\n"
+                                               - item - 1] + "\n"
 
         else:
             for item in calc_history:
@@ -214,12 +218,14 @@ class History:
 
         # Export Button
         self.export_button = Button(self.export_dismiss_frame, text="Export",
-                                    font="Arial 12 bold")
+                                    font="Arial 12 bold",
+                                    command=lambda: self.export(calc_history))
         self.export_button.grid(row=0, column=0)
 
         # Dismiss Button
         self.dismiss_button = Button(self.export_dismiss_frame, text="Dismiss",
-                                     font="Arial 12 bold", command=partial(self.close_history, partner))
+                                     font="Arial 12 bold",
+                                     command=partial(self.close_history, partner))
         self.dismiss_button.grid(row=0, column=1)
 
     def close_history(self, partner):
@@ -227,13 +233,16 @@ class History:
         partner.history_button.config(state=NORMAL)
         self.history_box.destroy()
 
+    def export(self, calc_history):
+        Export(self, calc_history)
+
 
 class Export:
     def __init__(self, partner, calc_history):
 
         print(calc_history)
 
-        background = "orange"
+        background = "#a9ef99"  # Pale green
 
         # disable export button
         partner.export_button.config(state=DISABLED)
@@ -242,41 +251,47 @@ class Export:
         self.export_box = Toplevel()
 
         # If users press cross at top, closes export and 'releases' export button
-        self.export_box.protocol('WM_DELETE_WINDOW',
-                                 partial(self.close_export, partner))
+        self.export_box.protocol('WM_DELETE_WINDOW', partial(self.close_export, partner))
 
         # Set up GUI Frame
         self.export_frame = Frame(self.export_box, width=300, bg=background)
         self.export_frame.grid()
 
-        # Export instructions (label, row 1)
+        # Set up Export heading (row 0)
         self.how_heading = Label(self.export_frame, text="Export / Instructions",
-                                 font="arial 10 bold", bg=background)
+                                 font="arial 14 bold", bg=background)
         self.how_heading.grid(row=0)
 
+        # Export instructions (label, row 1)
+        self.export_text = Label(self.export_frame, text="Enter a filename in the "
+                                                         "box below and press the "
+                                                         "Save button to save your "
+                                                         "calculation history to a "
+                                                         "text file.",
+                                 justify=LEFT, width=40, bg=background, wrap=250)
+        self.export_text.grid(row=1)
+
         # Warning text (label, row 2)
-        self.export_text = Label(self.export_frame, text="If the filename "
-                                                         "you enter below "
-                                                         "already exits, "
-                                                         "its contents will "
-                                                         "be replaced with "
-                                                         "your calculation "
-                                                         "history",
-                                 justify=LEFT, width=40, bg="#ffafaf", fg="marron",
-                                 wrap=225, font="Arial 10 italic", padx=10,
-                                 pady=10)
+        self.export_text = Label(self.export_frame, text="If the filename you "
+                                                         "enter below already "
+                                                         "exits, its contents "
+                                                         "will be replaced with "
+                                                         "your calculation history",
+                                 justify=LEFT, bg="#ffafaf", fg="maroon",
+                                 font="Arial 10 italic", wrap=225, padx=10, pady=10)
         self.export_text.grid(row=2, pady=10)
 
         # Filename Entry Box (row 3)
         self.filename_entry = Entry(self.export_frame, width=20,
-                                    font="Arial 14 bold", jusftify=CENTER)
+                                    font="Arial 14 bold", justify=CENTER)
         self.filename_entry.grid(row=3, pady=10)
 
+        # Error Message Labels (initially blank, row 4)
         self.save_error_label = Label(self.export_frame, text="", fg="maroon",
                                       bg=background)
         self.save_error_label.grid(row=4)
 
-        # Save / Cancel Frame (row 4)
+        # Save / Cancel Frame (row 5)
         self.save_cancel_frame = Frame(self.export_frame)
         self.save_cancel_frame.grid(row=5, pady=10)
 
@@ -292,7 +307,7 @@ class Export:
     def save_history(self, partner, calc_history):
 
         # Regular expression to check filename is valid
-        valid_char = "A-Za-z0-9"
+        valid_char = "[A-Za-z0-9_]"
         has_error = "no"
 
         filename = self.filename_entry.get()
@@ -301,6 +316,7 @@ class Export:
         for letter in filename:
             if re.match(valid_char, letter):
                 continue
+
             elif letter == " ":
                 problem = "(no spaces allowed)"
 
@@ -346,7 +362,6 @@ class Export:
 
 class Help:
     def __init__(self, partner):
-
         background = "orange"
 
         # disable help button
@@ -364,13 +379,14 @@ class Help:
 
         # Set up Help heading  (row 0)
         self.how_heading = Label(self.help_frame, text="Help / Instructions",
-                                 font="arial 10 bold", bg=background)
+                                 font="arial 14 bold", bg=background)
         self.how_heading.grid(row=0)
 
         # Help text  (label, row 1)
         self.help_text = Label(self.help_frame, text="",
                                justify=LEFT, width=40, bg=background, wrap=250)
         self.help_text.grid(column=0, row=1)
+
         # Dismiss button (row 2)
         self.dismiss_btn = Button(self.help_frame, text="Dismiss",
                                   width=10, bg="orange", font="arial, 10 bold",
